@@ -10,23 +10,11 @@ This project uses [Sylvan.Data.Csv](https://github.com/MarkPflug/Sylvan), [Sylva
 
 To compare this implementation to other languages that support AOT compilation, I've measured converting a ~6mb .xslx to .csv with OSS Rust and Go projects that also support the conversion. I've compiled all the projects locally, and noted the command used to compile. Not being familiar with Go or Rust, it's possible that there are compiler options that might influence those projects that I'm not using.
 
-C#, this project:
-Compile: `dotnet publish`
-Exe size: 3.2MB
-Memory: 22MB
-CPU Total: 00:00:01.1406250
-
-GO, [tealeg/xlsx2csv](https://github.com/tealeg/xlsx2csv):
-Compile: `go build`
-Exe size: 3.7MB
-Memory: 413MB
-CPU Total: 00:00:04.4218750
-
-Rust, [zitsen/xlsx2csv.rs](https://github.com/zitsen/xlsx2csv.rs):
-Compile: `cargo build -r`
-Exe size: 3.7MB
-Memory: 359MB
-CPU Total: 00:04:29.7343750
+| Language | Project | Command | ExeSize | Memory | Cpu |
+| --- | --- | --- | --- | --- | --- |
+| C# | this project | `dotnet publish` | 3.2MB | 22MB | 00:00:01.1406250 |
+| GO | [tealeg/xlsx2csv](https://github.com/tealeg/xlsx2csv) | `go build` | 3.7MB | 413MB | 00:00:04.4218750 |
+| Rust | [zitsen/xlsx2csv.rs](https://github.com/zitsen/xlsx2csv.rs) | `cargo build -r` | 3.7MB | 359MB | 00:04:29.7343750 |
 
 It would be unfair to draw any conclusions from these results other than that my C# Excel and CSV library implementations appear to be well optimized in comparison to those used by these other projects. I'm not experienced with either Go or Rust and so unfit to (and uninterested in) assessing how those implementations might be improved. It is also notable that the C# implementation has smaller executable size while being more feature-rich: it supports omnidirectional conversion for .csv, .xlsx, .xlsb, and .parquet files.
 
