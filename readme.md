@@ -1,6 +1,6 @@
 # `data-convert`: a .NET AOT experiment.
 
-This project is a command-line tool that can convert between a few data file formats: .csv, .xlsx, .parquet. This was created to experiment with the ahead-of-time (AOT) compilation feature in the latest versions of .NET.
+This project implements a command-line tool that can convert between a few data file formats: .csv, .xlsx, .parquet. This was created to experiment with the ahead-of-time (AOT) compilation feature in the latest versions of .NET.
 
 On my Windows machine, the AOT compilation produces a 3.2MB executable. There are couple tricks involved in producing this size. First, `<XmlResolverIsNetworkingEnabledByDefault>` is set to `false`, which allows trimming unused code from the .NET XML library which is used to process .xlsx files. This reduces the executable size from ~10MB to ~7MB. Second, the [PublishAotCompressed](https://github.com/MichalStrehovsky/PublishAotCompressed) package is used to apply compression to the executable. This reduces the 7MB to the final ~3.2MB. Presumably, this introduces a bit of CPU overhead to decompress the executable at runtime. In use I wasn't able to observe any noticable delay, but it might be measurable with benchmarking.
 
