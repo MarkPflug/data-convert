@@ -71,7 +71,7 @@ internal class Program
         long count = 0;
         switch (inExt.ToLowerInvariant())
         {
-            case ".csv":
+            case ".csv":                
                 using (var r = CsvDataReader.Create(inputFile))
                 {
                     schema = Analyze(r);
@@ -82,11 +82,20 @@ internal class Program
             case ".xlsx":
             case ".xlsb":
             case ".xls":
-                using (var r = ExcelDataReader.Create(inputFile))
+
+                IExcelSchemaProvider excelSchema;
+                if (outExt.ToLowerInvariant() != ".csv")
                 {
-                    schema = Analyze(r);
+                    using (var r = ExcelDataReader.Create(inputFile))
+                    {
+                        schema = Analyze(r);
+                    }
+                    excelSchema = new ExcelSchema(true, schema);
                 }
-                var excelSchema = new ExcelSchema(true, schema);
+                else
+                {
+                    excelSchema = ExcelSchema.Dynamic;
+                }
                 reader = ExcelDataReader.Create(inputFile, new ExcelDataReaderOptions { Schema = excelSchema });
                 break;
             case ".parq":
@@ -132,7 +141,7 @@ internal class Program
         }
         sw.Stop();
 
-        Console.Write($"Wrote {count} records in {sw.Elapsed}.");
+        Console.WriteLine($"Wrote {count} records in {sw.Elapsed}.");
         return 0;
     }
 }

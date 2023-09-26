@@ -2,7 +2,7 @@
   "profiles": {
     "ExcelAOT": {
       "commandName": "Project",
-      "commandLineArgs": "C:\\data\\1msr.parq dump.csv"
+      "commandLineArgs": "C:\\data\\in.xlsx outcs.csv"
     }
   }
 }
