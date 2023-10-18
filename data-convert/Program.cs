@@ -2,6 +2,7 @@
 using Sylvan.Data;
 using Sylvan.Data.Csv;
 using Sylvan.Data.Excel;
+using Sylvan.Data.XBase;
 using System.Data.Common;
 using System.Diagnostics;
 
@@ -44,6 +45,7 @@ internal class Program
             case ".csv":
             case ".parq":
             case ".parquet":
+            case ".dbf":
                 // okay
                 break;
             default:
@@ -78,6 +80,9 @@ internal class Program
                 }
                 var csvSchema = new CsvSchema(schema);
                 reader = CsvDataReader.Create(inputFile, new CsvDataReaderOptions { Schema = csvSchema });
+                break;
+            case ".dbf":
+                reader = XBaseDataReader.Create(inputFile);
                 break;
             case ".xlsx":
             case ".xlsb":
