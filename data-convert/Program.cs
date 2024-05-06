@@ -49,7 +49,7 @@ internal class Program
                 // okay
                 break;
             default:
-                Console.WriteLine("Unsupported input file type " + outExt);
+                Console.WriteLine("Unsupported input file type " + inExt);
                 return 2;
         }
 
