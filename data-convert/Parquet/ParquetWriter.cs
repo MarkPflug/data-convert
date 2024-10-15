@@ -1,5 +1,6 @@
 ﻿using Parquet;
 using Parquet.Data;
+using Parquet.Schema;
 using System.Collections.ObjectModel;
 using System.Data.Common;
 
@@ -347,8 +348,8 @@ using System.Data.Common;
                    };
             }
 
-            var schema = new Schema(fields.ToArray());
-            using ParquetWriter parquetWriter = new ParquetWriter(schema, stream);
+            var schema = new ParquetSchema(fields.ToArray());
+            using ParquetWriter parquetWriter = ParquetWriter.CreateAsync(schema, stream).Result;
 
             int idx = 0;
             long count = 0;
@@ -393,7 +394,7 @@ using System.Data.Common;
                     dataArray = temp;
                 }
                 DataColumn dataColumn = new DataColumn(col.field, dataArray);
-                gw.WriteColumn(dataColumn);
+                gw.WriteColumnAsync(dataColumn).Wait();
             }
         }
     }

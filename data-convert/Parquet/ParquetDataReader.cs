@@ -1,5 +1,6 @@
 ﻿using Parquet;
 using Parquet.Data;
+using Parquet.Schema;
 using System.Collections;
 using System.Collections.ObjectModel;
 using System.Data.Common;
@@ -43,7 +44,7 @@ sealed class ParquetDataReader : DbDataReader, IDbColumnSchemaGenerator
         this.fieldCount = s.Fields.Count;
         this.columns = new DataColumn[FieldCount];
         var schemaColumns = new DbColumn[fieldCount];
-        this.dfs = new DataField[fieldCount]; 
+        this.dfs = new DataField[fieldCount];
         for (int i = 0; i < fieldCount; i++)
         {
             // TODO: what's a Field vs a DataField?
@@ -68,7 +69,7 @@ sealed class ParquetDataReader : DbDataReader, IDbColumnSchemaGenerator
         this.groupOffset = -1;
         for (int i = 0; i < fieldCount; i++)
         {
-            this.columns[i] = rowGroup.ReadColumn(dfs[i]);
+            this.columns[i] = rowGroup.ReadColumnAsync(dfs[i]).Result;
         }
         return true;
     }
@@ -88,7 +89,7 @@ sealed class ParquetDataReader : DbDataReader, IDbColumnSchemaGenerator
                 this.DataType = typeof(string);
                 this.AllowDBNull = false;
             }
-            this.DataTypeName = field.DataType.ToString();
+            this.DataTypeName = field.ClrType.ToString();
         }
 
         public override string ToString()
@@ -116,8 +117,8 @@ sealed class ParquetDataReader : DbDataReader, IDbColumnSchemaGenerator
         var data = this.columns[ordinal].Data;
         if (data is T?[] n)
         {
-            return n[groupOffset];            
-        } 
+            return n[groupOffset];
+        }
         else
         {
             return ((T[])data)[groupOffset];
@@ -141,7 +142,7 @@ sealed class ParquetDataReader : DbDataReader, IDbColumnSchemaGenerator
 
     T GetObject<T>(int ordinal) where T : class
     {
-        var col = this.columns[ordinal];       
+        var col = this.columns[ordinal];
         var data = col.Data;
         T value = ((T[])data)[groupOffset];
         if (value == null)
@@ -270,40 +271,43 @@ sealed class ParquetDataReader : DbDataReader, IDbColumnSchemaGenerator
     public override object GetValue(int ordinal)
     {
         var s = dfs[ordinal];
-        switch (s.DataType)
+        var type = s.ClrType;
+        var tc = Type.GetTypeCode(type);
+        switch (tc)
         {
-            case DataType.Boolean:
+            case TypeCode.Boolean:
                 return OrNull<bool>(ordinal);
-            case DataType.Byte:
+            case TypeCode.Byte:
                 return OrNull<byte>(ordinal);
-            case DataType.Int16:
+            case TypeCode.Int16:
                 return OrNull<short>(ordinal);
-            case DataType.Int32:
+            case TypeCode.Int32:
                 return OrNull<int>(ordinal);
-            case DataType.Int64:
+            case TypeCode.Int64:
                 return OrNull<long>(ordinal);
-            case DataType.Short:
+            case TypeCode.Single:
                 return OrNull<float>(ordinal);
-            case DataType.Double:
+            case TypeCode.Double:
                 return OrNull<double>(ordinal);
-            case DataType.TimeSpan:
-                throw new NotImplementedException();
-            case DataType.DateTimeOffset:
-                var dto = MaybeGetValue<DateTimeOffset>(ordinal);
-                return dto.HasValue ? (object)dto.Value.UtcDateTime : DBNull.Value;
-            case DataType.Decimal:
+            case TypeCode.Decimal:
                 return OrNull<decimal>(ordinal);
-            case DataType.String:
+            case TypeCode.String:
                 {
                     string? value = ((string[])this.columns[ordinal].Data)[groupOffset];
                     return (object)value ?? DBNull.Value;
                 }
-            case DataType.ByteArray:
+            default:
+                if (type == typeof(DateTimeOffset))
+                {
+                    var dto = MaybeGetValue<DateTimeOffset>(ordinal);
+                    return dto.HasValue ? (object)dto.Value.UtcDateTime : DBNull.Value;
+
+                }
+                else if (type == typeof(byte[]))
                 {
                     byte[] value = ((byte[][])this.columns[ordinal].Data)[groupOffset];
                     return value == null ? DBNull.Value : value;
                 }
-            default:
                 throw new NotSupportedException();
         }
     }
@@ -328,35 +332,41 @@ sealed class ParquetDataReader : DbDataReader, IDbColumnSchemaGenerator
     public override bool IsDBNull(int ordinal)
     {
         var s = dfs[ordinal];
-        if (s.HasNulls == false) return false;
+        if (s.IsNullable == false) return false;
+        var type = s.ClrType;
+        var tc = Type.GetTypeCode(type);
 
-        switch (s.DataType)
+        switch (tc)
         {
-            case DataType.Boolean:
+            case TypeCode.Boolean:
                 return IsNull<bool>(ordinal);
-            case DataType.Byte:
+            case TypeCode.Byte:
                 return IsNull<byte>(ordinal);
-            case DataType.Int16:
+            case TypeCode.Int16:
                 return IsNull<short>(ordinal);
-            case DataType.Int32:
+            case TypeCode.Int32:
                 return IsNull<int>(ordinal);
-            case DataType.Int64:
+            case TypeCode.Int64:
                 return IsNull<long>(ordinal);
-            case DataType.Short:
+            case TypeCode.Single:
                 return IsNull<float>(ordinal);
-            case DataType.Double:
+            case TypeCode.Double:
                 return IsNull<double>(ordinal);
-            case DataType.TimeSpan:
-                throw new NotImplementedException();
-            case DataType.DateTimeOffset:
-                return IsNull<DateTimeOffset>(ordinal);
-            case DataType.Decimal:
+            case TypeCode.Decimal:
                 return IsNull<decimal>(ordinal);
-            case DataType.String:
+            case TypeCode.String:
                 return ((string[])this.columns[ordinal].Data)[groupOffset] == null;
-            case DataType.ByteArray:
-                return ((byte[][])this.columns[ordinal].Data)[groupOffset] == null;
             default:
+
+                if (type == typeof(DateTimeOffset))
+                {
+                    return IsNull<DateTimeOffset>(ordinal);
+                }
+                else if (type == typeof(byte[]))
+                {
+                    return ((byte[][])this.columns[ordinal].Data)[groupOffset] == null;
+                }
+
                 throw new NotSupportedException();
         }
     }

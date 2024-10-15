@@ -2,7 +2,7 @@
   "profiles": {
     "ExcelAOT": {
       "commandName": "Project",
-      "commandLineArgs": "C:\\data\\in.xlsx outcs.csv"
+      "commandLineArgs": "/data/dbf/taxlot.dbf taxlot.xlsx"
     }
   }
 }

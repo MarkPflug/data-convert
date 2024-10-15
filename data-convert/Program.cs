@@ -106,7 +106,7 @@ internal class Program
             case ".parq":
             case ".parquet":
                 var inputStream = File.OpenRead(inputFile);
-                var pr = new ParquetReader(inputStream);
+                var pr = ParquetReader.CreateAsync(inputStream).Result;
                 reader = new ParquetDataReader(pr);
                 break;
             default:

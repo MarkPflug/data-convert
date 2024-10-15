@@ -1,5 +1,5 @@
 ﻿using Parquet;
-using Parquet.Data;
+using Parquet.Schema;
 using Sylvan.Data;
 using System.Data;
 using System.Data.Common;
@@ -28,7 +28,7 @@ class Program
         var count = r.WriteParquet(ms);
         ms.Seek(0, SeekOrigin.Begin);
 
-        var pr = new ParquetReader(ms);
+        var pr = ParquetReader.CreateAsync(ms).Result;
         var dr = pr.AsDataReader();
         var dt = new DataTable();
         dt.Load(dr);
@@ -50,9 +50,9 @@ class Program
         var c0 = (DataField)pr.Schema[0];
         var c1 = (DataField)pr.Schema[1];
         var c2 = (DataField)pr.Schema[2];
-        var aa = rgr.ReadColumn(c0);
-        var bb = rgr.ReadColumn(c1);
-        var cc = rgr.ReadColumn(c2);
-        var t = pr.ReadAsTable();
+        var aa = rgr.ReadColumnAsync(c0).Result;
+        var bb = rgr.ReadColumnAsync(c1).Result;
+        var cc = rgr.ReadColumnAsync(c2).Result;
+        var t = pr.ReadEntireRowGroupAsync().Result;
     }
 }
