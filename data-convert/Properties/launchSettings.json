@@ -2,7 +2,7 @@
   "profiles": {
     "ExcelAOT": {
       "commandName": "Project",
-      "commandLineArgs": "/data/dbf/taxlot.dbf taxlot.xlsx"
+      "commandLineArgs": "asdf.parq qwer.csv"
     }
   }
 }

@@ -5,11 +5,13 @@ using Sylvan.Data.Excel;
 using Sylvan.Data.XBase;
 using System.Data.Common;
 using System.Diagnostics;
+using System.Text;
 
 internal class Program
 {
     static int Main(string[] args)
     {
+        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
         if (args.Length < 2)
         {
             Console.WriteLine("Usage:");
@@ -82,7 +84,24 @@ internal class Program
                 reader = CsvDataReader.Create(inputFile, new CsvDataReaderOptions { Schema = csvSchema });
                 break;
             case ".dbf":
-                reader = XBaseDataReader.Create(inputFile);
+
+                var baseName = Path.Combine(Path.GetDirectoryName(inputFile), Path.GetFileNameWithoutExtension(inputFile));
+
+                var memoName = baseName + ".dbt";
+                if (!File.Exists(memoName))
+                {
+                    memoName = baseName + ".fpt";
+                    if (!File.Exists(memoName))
+                    {
+                        memoName = null;
+                    }
+                }
+
+                reader = 
+                    memoName == null 
+                    ? XBaseDataReader.Create(inputFile)
+                    : XBaseDataReader.Create(inputFile, memoName);
+
                 break;
             case ".xlsx":
             case ".xlsb":

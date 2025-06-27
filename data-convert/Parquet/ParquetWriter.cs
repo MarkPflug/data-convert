@@ -7,7 +7,7 @@ using System.Data.Common;
     /// <summary>
     /// Extensions for interoperating with ADO.NET DbDataReader.
     /// </summary>
-    public static class DataReaderExtensions
+    static class DataReaderExtensions
     {
         struct ColumnInfo
         {
@@ -239,24 +239,24 @@ using System.Data.Common;
             }
         }
 
-        sealed class DateTimeColumnHandler : ColumnHandler<DateTimeOffset>
+        sealed class DateTimeColumnHandler : ColumnHandler<DateTime>
         {
-            public override DateTimeOffset GetValue(DbDataReader reader, int ordinal)
+            public override DateTime GetValue(DbDataReader reader, int ordinal)
             {
                 var dt = reader.GetDateTime(ordinal);
-                return dt.AsDateTimeOffsetUtc();
+                return dt;
             }
         }
 
-        sealed class NullableDateTimeColumnHandler : ColumnHandler<DateTimeOffset?>
+        sealed class NullableDateTimeColumnHandler : ColumnHandler<DateTime?>
         {
-            public override DateTimeOffset? GetValue(DbDataReader reader, int ordinal)
+            public override DateTime? GetValue(DbDataReader reader, int ordinal)
             {
                 if (reader.IsDBNull(ordinal))
                     return null;
 
                 var dt = reader.GetDateTime(ordinal);
-                return dt.AsDateTimeOffsetUtc();
+                return dt;
             }
         }
 

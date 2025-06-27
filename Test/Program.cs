@@ -1,8 +1,10 @@
 ﻿using Parquet;
 using Parquet.Schema;
 using Sylvan.Data;
+using Sylvan.Data.XBase;
 using System.Data;
 using System.Data.Common;
+using System.Text;
 
 class S
 {
@@ -15,6 +17,23 @@ class Program
 {
     static void Main()
     {
+
+        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+        var x = Encoding.Default;
+        var r = XBaseDataReader.Create("C:/data/dbf/github/yellowfeather/dbfdatareader/dbase_83.dbf", "C:/data/dbf/github/yellowfeather/dbfdatareader/dbase_83.dbt");
+
+        for (int i = 0; i < r.FieldCount; i++)
+        {
+            Console.WriteLine($"{i} {r.GetName(i)}");
+        }
+        r.Read();
+        r.Read();
+
+        var xx = r.GetString(11);
+
+    }
+
+    static void DebugParq() { 
         // used to debug some Parquet.Net behavior and perf issues.
         var d = new[]
         {

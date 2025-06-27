@@ -186,8 +186,7 @@ sealed class ParquetDataReader : DbDataReader, IDbColumnSchemaGenerator
 
     public override DateTime GetDateTime(int ordinal)
     {
-        var dto = GetValue<DateTimeOffset>(ordinal);
-        return dto.UtcDateTime;
+        return GetValue<DateTime>(ordinal);
     }
 
     public override decimal GetDecimal(int ordinal)
@@ -358,16 +357,16 @@ sealed class ParquetDataReader : DbDataReader, IDbColumnSchemaGenerator
                 return ((string[])this.columns[ordinal].Data)[groupOffset] == null;
             default:
 
-                if (type == typeof(DateTimeOffset))
+                if (type == typeof(DateTime))
                 {
-                    return IsNull<DateTimeOffset>(ordinal);
+                    return IsNull<DateTime>(ordinal);
                 }
                 else if (type == typeof(byte[]))
                 {
                     return ((byte[][])this.columns[ordinal].Data)[groupOffset] == null;
                 }
-
-                throw new NotSupportedException();
+                return false;
+                //throw new NotSupportedException();
         }
     }
 
