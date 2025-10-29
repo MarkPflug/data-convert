@@ -4,7 +4,7 @@ This project implements a command-line tool that can convert between a few data 
 
 On my Windows machine, the AOT compilation produces a 3.2MB executable. There are couple tricks involved in producing this size. First, `<XmlResolverIsNetworkingEnabledByDefault>` is set to `false`, which allows trimming unused code from the .NET XML library which is used to process .xlsx files. This reduces the executable size from ~10MB to ~7MB. Second, the [PublishAotCompressed](https://github.com/MichalStrehovsky/PublishAotCompressed) package is used to apply compression to the executable. This reduces the 7MB to the final ~3.2MB. Presumably, this introduces a bit of CPU overhead to decompress the executable at runtime. In use I wasn't able to observe any noticable delay, but it might be measurable with benchmarking.
 
-This project uses [Sylvan.Data.Csv](https://github.com/MarkPflug/Sylvan), [Sylvan.Data.Excel](https://github.com/MarkPflug/Sylvan.Data.Excel), and [Parquet.Net](https://github.com/aloneguid/parquet-dotnet) libraries. These libraries are not AOT-ready, and produce some AOT warnings that I have completely ignored.
+This project uses [Sylvan.Data.Csv](https://github.com/MarkPflug/Sylvan), [Sylvan.Data.Excel](https://github.com/MarkPflug/Sylvan.Data.Excel), [Sylvan.Data.XBase](https://github.com/MarkPflug/Sylvan.Data.XBase), and [Parquet.Net](https://github.com/aloneguid/parquet-dotnet) libraries.
 
 ## Comparison
 
